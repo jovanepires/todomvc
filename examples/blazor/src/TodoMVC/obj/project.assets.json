@@ -726,11 +726,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/jovanepires/workspace/todomvc/examples/blazor/TodoMVC/TodoMVC.csproj",
+      "projectUniqueName": "/Users/jovanepires/workspace/todomvc/examples/blazor/src/TodoMVC/TodoMVC.csproj",
       "projectName": "TodoMVC",
-      "projectPath": "/Users/jovanepires/workspace/todomvc/examples/blazor/TodoMVC/TodoMVC.csproj",
+      "projectPath": "/Users/jovanepires/workspace/todomvc/examples/blazor/src/TodoMVC/TodoMVC.csproj",
       "packagesPath": "/Users/jovanepires/.nuget/packages/",
-      "outputPath": "/Users/jovanepires/workspace/todomvc/examples/blazor/TodoMVC/obj/",
+      "outputPath": "/Users/jovanepires/workspace/todomvc/examples/blazor/src/TodoMVC/obj/",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
