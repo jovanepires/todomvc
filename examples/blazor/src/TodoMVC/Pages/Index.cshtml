@@ -1,0 +1,116 @@
+﻿@page "/"
+@page "/{Filter}"
+
+@inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
+@using TodoMVC.Models
+@using TodoMVC.Repositories.MemoryStorage 
+
+<header class="header">
+	<h1>todos</h1>
+	<input class="new-todo" placeholder="What needs to be done?" autofocus bind="@Title" onkeyup="@((ev) => NewTodo(ev, Title))" />
+</header>
+<!-- This section should be hidden by default and shown when there are todos -->
+<section class="main">
+	<input id="toggle-all" class="toggle-all" type="checkbox" bind="@ToggleAll" onclick="@(() => ToggleAllTodos(ToggleAll))" />
+	<label for="toggle-all">Mark all as complete</label>
+	<ul class="todo-list">
+		<!-- These are here just to show the structure of the list items -->
+		<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
+		@foreach (var item in Items)
+		{
+		<li class="@(item.Completed ? "completed" : null)">
+			<div class="view">
+				<input class="toggle" type="checkbox" checked="@item.Completed" onclick="@(() => TodoIsCompleted(item.Title))"/>
+				<label>@item.Title</label>
+				<button class="destroy" onclick="@(() => RemoveTodo(item.Title))"></button>
+			</div>
+			<input class="edit" value="Create a TodoMVC template">
+		</li>
+		}
+	</ul>
+</section>
+<!-- This footer should hidden by default and shown when there are todos -->
+<footer class="footer">
+	<!-- This should be `0 items left` by default -->
+	<span class="todo-count"><strong>@(Items.Count(o => !o.Completed))</strong> items left</span>
+	<!-- Remove this if you don't implement routing -->
+	<ul class="filters">
+		<li>
+			<a class="selected" href="/" onclick='@(() => Navigate(""))'>All</a>
+		</li>
+		<li>
+			<a href="/active" onclick='@(() => Navigate("active"))'>Active</a>
+		</li>
+		<li>
+			<a href="/completed" onclick='@(() => Navigate("completed"))'>Completed</a>
+		</li>
+	</ul>
+	<!-- Hidden if no completed items are left ↓ -->
+	@if (Items.Count(o => o.Completed) > 0)
+	{
+		<button class="clear-completed" onclick="@(() => ClearCompletedTodos())">Clear completed</button>
+	}
+</footer>
+
+@functions {
+	[Parameter]
+	private string Filter { get; set; }
+
+	private string Title = null;
+	private bool ToggleAll = true;
+    private static ItemTodoRepository Repository = new ItemTodoRepository();
+	private List<ItemTodo> Items = null;
+
+	protected override void OnInit()
+    {
+        UpdateItemsList(); 
+    }
+
+	private void Navigate(string filter)
+    {
+        UriHelper.NavigateTo($"/{filter}");
+		Filter = filter;
+		StateHasChanged();
+		UpdateItemsList(); 
+    }
+
+	protected void NewTodo(UIKeyboardEventArgs ev, string title)
+	{
+		if (ev.Key.Equals("Enter", StringComparison.OrdinalIgnoreCase)) 
+		{
+            Repository.Save(new ItemTodo(title, false));
+			Title = null;
+			UpdateItemsList(); 
+		}
+	}
+
+	void RemoveTodo(string title) 
+	{
+		Repository.Delete(title);
+		UpdateItemsList();
+	}
+
+	void ClearCompletedTodos() 
+	{
+		Items.Where(o => o.Completed).ToList().ForEach(o => Repository.Delete(o.Title));
+		UpdateItemsList();
+	}
+
+	void ToggleAllTodos(bool flag) 
+	{
+		Items.ForEach(o => Repository.Save(new ItemTodo(o.Title, flag)));
+		ToggleAll = !flag;
+		UpdateItemsList();
+	}
+
+	void TodoIsCompleted(string title)
+    {
+        Repository.Save(new ItemTodo(title, true));
+		UpdateItemsList();
+    }
+
+	void UpdateItemsList() 
+	{
+		Items = Repository.List(Filter).ToList();
+	}
+}
